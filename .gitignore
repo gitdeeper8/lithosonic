@@ -185,3 +185,4 @@ edge/__pycache__/
 edge/*.pyc
 upload_*.py
 *.token
+upload_*.py
