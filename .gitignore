@@ -183,3 +183,5 @@ dist/
 # Edge deployment
 edge/__pycache__/
 edge/*.pyc
+upload_*.py
+*.token
