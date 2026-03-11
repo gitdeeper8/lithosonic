@@ -186,3 +186,5 @@ edge/*.pyc
 upload_*.py
 *.token
 upload_*.py
+upload_*.py
+*.token
