@@ -1,0 +1,26 @@
+[run]
+source = lithosonic
+omit = 
+    */tests/*
+    */docs/*
+    */examples/*
+    setup.py
+    */__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if __name__ == .__main__.:
+    raise AssertionError
+    raise NotImplementedError
+    return NotImplemented
+    pass
+    ^\s*\.\.\.$
+
+[html]
+directory = htmlcov
+
+[xml]
+output = coverage.xml

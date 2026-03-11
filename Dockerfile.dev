@@ -1,0 +1,97 @@
+# LITHO-SONIC Development Dockerfile
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18931304
+
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    libpq-dev \
+    libusb-1.0-0-dev \
+    git \
+    curl \
+    vim \
+    nano \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+COPY requirements-dev.txt .
+
+# Install Python packages
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-dev.txt
+RUN pip install --no-cache-dir \
+    jupyter \
+    ipython \
+    pytest \
+    pytest-cov \
+    pytest-xdist \
+    pytest-asyncio \
+    black \
+    isort \
+    flake8 \
+    pylint \
+    mypy \
+    pre-commit \
+    bandit \
+    safety \
+    sphinx \
+    sphinx-rtd-theme \
+    mkdocs \
+    mkdocs-material \
+    mkdocstrings
+
+# Copy application
+COPY . .
+
+# Install package in development mode
+RUN pip install -e .
+
+# Create data directories
+RUN mkdir -p /data/lithosonic/raw \
+    /data/lithosonic/processed \
+    /data/lithosonic/backup \
+    /logs \
+    /config \
+    /notebooks
+
+# Copy default config
+COPY config/*.yaml /config/
+
+# Copy sample notebooks
+COPY notebooks/*.ipynb /notebooks/
+
+# Set up pre-commit
+RUN pre-commit install
+
+# Expose ports
+EXPOSE 5000 8000 8888 9090
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    FLASK_ENV=development \
+    FLASK_DEBUG=1 \
+    LITHOSONIC_HOME=/app \
+    LITHOSONIC_DATA=/data/lithosonic \
+    LITHOSONIC_CONFIG=/config \
+    LITHOSONIC_LOGS=/logs
+
+# Default command
+CMD ["python", "-m", "lithosonic.cli", "serve", "--host", "0.0.0.0", "--port", "5000", "--debug"]
+
+# Labels
+LABEL org.opencontainers.image.title="LITHO-SONIC Development"
+LABEL org.opencontainers.image.description="Lithospheric Resonance Observatory (Development)"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.authors="Samir Baladi <gitdeeper@gmail.com>"
+LABEL org.opencontainers.image.url="https://github.com/gitdeeper8/lithosonic"
+LABEL org.opencontainers.image.documentation="https://lithosonic.netlify.app/docs"
+LABEL org.opencontainers.image.doi="10.5281/zenodo.18931304"

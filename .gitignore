@@ -1,0 +1,185 @@
+# LITHO-SONIC Git Ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.coverage.*
+*.cover
+*.py,cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.ipynb_checkpoints/*
+!*.ipynb
+jupyter_execute/
+notebooks/.ipynb_checkpoints/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-*
+.project
+.pydevproject
+.settings/
+*.code-workspace
+
+# Data files
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+*.h5
+*.hdf5
+*.nc
+*.npy
+*.npz
+data/raw/
+data/processed/
+data/backup/
+data/archive/
+*.csv
+*.parquet
+*.feather
+
+# Model files
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.onnx
+*.pb
+*.tflite
+*.caffemodel
+*.mar
+models/archive/
+
+# Logs
+logs/
+*.log
+*.pid
+*.lock
+
+# Docker
+.dockerignore
+*.pid
+*.lock
+
+# Secrets
+*.key
+*.pem
+*.crt
+*.pub
+secrets/
+config/secrets/
+
+# Local config
+config/local.yaml
+config/*.local.yaml
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.icloud
+
+# Project specific
+/data/
+/logs/
+/config/*.yaml
+!config/default.yaml
+!config/calibration/
+/secrets/
+*.pid
+*.sock
+
+# Documentation
+docs/_build/
+docs/build/
+site/
+
+# Netlify
+.netlify/
+dist/
+
+# Edge deployment
+edge/__pycache__/
+edge/*.pyc

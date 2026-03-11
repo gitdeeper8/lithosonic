@@ -1,0 +1,30 @@
+# Core
+numpy==1.24.3
+scipy==1.10.1
+pandas==2.0.0
+
+# Physics
+numba==0.57.0
+sympy==1.11.1
+
+# Signal Processing
+obspy==1.4.0
+librosa==0.10.0
+
+# Visualization
+matplotlib==3.7.1
+plotly==5.14.1
+
+# Web
+flask==2.3.2
+dash==2.9.3
+
+# Database
+psycopg2-binary==2.9.6
+sqlalchemy==2.0.12
+
+# Utils
+pyserial==3.5
+pyyaml==6.0
+click==8.1.3
+tqdm==4.65.0

@@ -1,0 +1,251 @@
+# LITHO-SONIC Docker Compose Production Configuration
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18931304
+
+version: '3.8'
+
+networks:
+  lithosonic-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres-data:
+  timescaledb-data:
+  redis-data:
+  lithosonic-data:
+  lithosonic-logs:
+  grafana-data:
+  prometheus-data:
+
+services:
+  # ============================================
+  # DATABASES
+  # ============================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: lithosonic-postgres
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: lithosonic
+      POSTGRES_USER: lithouser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lithouser -d lithosonic"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: lithosonic-timescaledb
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: lithosonic_ts
+      POSTGRES_USER: lithouser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-c", "shared_preload_libraries=timescaledb"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lithouser -d lithosonic_ts"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lithosonic-redis
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ============================================
+  # LITHO-SONIC SERVICES
+  # ============================================
+  
+  collector:
+    build: .
+    container_name: lithosonic-collector
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      timescaledb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - lithosonic-data:/data
+      - lithosonic-logs:/logs
+      - ./config:/config:ro
+      - /dev:/dev:ro
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+      - "/dev/ttyUSB2:/dev/ttyUSB2"
+    environment:
+      - STATION_ID=${STATION_ID:-KILAUEA_01}
+      - STATION_LAT=${STATION_LAT:-19.41}
+      - STATION_LON=${STATION_LON:--155.28}
+      - DATA_DIR=/data
+      - LOG_DIR=/logs
+      - CONFIG_DIR=/config
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=lithosonic
+      - DB_USER=lithouser
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
+      - TSDB_HOST=timescaledb
+      - TSDB_PORT=5433
+      - TSDB_NAME=lithosonic_ts
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: ["lithosonic-collect", "--interval", "60"]
+    privileged: true
+
+  processor:
+    build: .
+    container_name: lithosonic-processor
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    depends_on:
+      - collector
+      - postgres
+      - timescaledb
+      - redis
+    volumes:
+      - lithosonic-data:/data
+      - lithosonic-logs:/logs
+      - ./config:/config:ro
+      - ./models:/models:ro
+    environment:
+      - DATA_DIR=/data
+      - LOG_DIR=/logs
+      - CONFIG_DIR=/config
+      - MODELS_DIR=/models
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=lithosonic
+      - DB_USER=lithouser
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
+      - TSDB_HOST=timescaledb
+      - TSDB_PORT=5433
+      - TSDB_NAME=lithosonic_ts
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: ["lithosonic-process", "--interval", "300"]
+
+  api:
+    build: .
+    container_name: lithosonic-api
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    depends_on:
+      - postgres
+      - timescaledb
+      - redis
+    volumes:
+      - lithosonic-data:/data
+      - lithosonic-logs:/logs
+      - ./config:/config:ro
+    environment:
+      - LOG_DIR=/logs
+      - CONFIG_DIR=/config
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=lithosonic
+      - DB_USER=lithouser
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
+      - TSDB_HOST=timescaledb
+      - TSDB_PORT=5433
+      - TSDB_NAME=lithosonic_ts
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-me}
+    ports:
+      - "5000:5000"
+    command: ["lithosonic-serve", "--host", "0.0.0.0", "--port", "5000"]
+
+  # ============================================
+  # MONITORING
+  # ============================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: lithosonic-prometheus
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    volumes:
+      - prometheus-data:/prometheus
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lithosonic-grafana
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
+
+  # ============================================
+  # NGINX REVERSE PROXY
+  # ============================================
+  
+  nginx:
+    image: nginx:alpine
+    container_name: lithosonic-nginx
+    restart: unless-stopped
+    networks:
+      - lithosonic-network
+    depends_on:
+      - api
+      - grafana
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+      - lithosonic-logs:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"

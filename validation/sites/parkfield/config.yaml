@@ -1,0 +1,29 @@
+# Parkfield San Andreas Fault Configuration
+site_id: PARKFIELD_01
+name: "San Andreas Fault - Parkfield"
+latitude: 35.95
+longitude: -120.55
+elevation: 450
+environment: "transform_fault"
+deployment_date: "2011-01-01"
+
+sensors:
+  geophone:
+    type: "LITHO-GEO-v2"
+    channels: 12
+    sample_rate: 1000
+    
+  infrasound:
+    channels: 24
+    sample_rate: 100
+    
+  creepmeter:
+    type: "borehole"
+    depth: 150
+
+processing:
+  window_size: 60
+  overlap: 0.5
+  sample_rate: 1000
+
+creep_rate: 25  # mm/year

@@ -1,0 +1,179 @@
+# LITHO-SONIC Docker Compose Development Configuration
+# Version: 1.0.0 | DOI: 10.5281/zenodo.18931304
+
+version: '3.8'
+
+networks:
+  lithosonic-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  postgres-dev-data:
+  timescaledb-dev-data:
+  redis-dev-data:
+  lithosonic-dev-data:
+
+services:
+  # ============================================
+  # DATABASES
+  # ============================================
+  
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: lithosonic-postgres-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: lithosonic_dev
+      POSTGRES_USER: lithouser
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5432:5432"
+    command: postgres -c log_statement=all
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lithouser -d lithosonic_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  timescaledb-dev:
+    image: timescale/timescaledb:latest-pg15
+    container_name: lithosonic-timescaledb-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    volumes:
+      - timescaledb-dev-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: lithosonic_ts_dev
+      POSTGRES_USER: lithouser
+      POSTGRES_PASSWORD: devpassword
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-c", "shared_preload_libraries=timescaledb", "-c", "log_statement=all"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lithouser -d lithosonic_ts_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: lithosonic-redis-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    volumes:
+      - redis-dev-data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # LITHO-SONIC DEVELOPMENT SERVICES
+  # ============================================
+  
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: lithosonic-app-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      timescaledb-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - lithosonic-dev-data:/data
+      - /dev:/dev:ro
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+      - STATION_ID=DEV_STATION_01
+      - DB_HOST=postgres-dev
+      - DB_PORT=5432
+      - DB_NAME=lithosonic_dev
+      - DB_USER=lithouser
+      - DB_PASSWORD=devpassword
+      - TSDB_HOST=timescaledb-dev
+      - TSDB_PORT=5433
+      - TSDB_NAME=lithosonic_ts_dev
+      - REDIS_HOST=redis-dev
+      - REDIS_PORT=6379
+    ports:
+      - "5000:5000"
+      - "8888:8888"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    stdin_open: true
+    tty: true
+    command: ["python", "-m", "lithosonic.cli", "serve", "--host", "0.0.0.0", "--port", "5000", "--debug"]
+
+  jupyter-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: lithosonic-jupyter-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    depends_on:
+      - app-dev
+    volumes:
+      - .:/app
+      - ./notebooks:/notebooks
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "8889:8888"
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='dev' --notebook-dir=/notebooks
+
+  # ============================================
+  # MONITORING (DEV)
+  # ============================================
+  
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: lithosonic-prometheus-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: lithosonic-grafana-dev
+    restart: unless-stopped
+    networks:
+      - lithosonic-dev-network
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./docker/grafana/datasources-dev.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./docker/grafana/dashboards-dev:/etc/grafana/provisioning/dashboards
+    ports:
+      - "3001:3000"

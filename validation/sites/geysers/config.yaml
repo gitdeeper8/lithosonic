@@ -1,0 +1,31 @@
+# The Geysers Geothermal Field Configuration
+site_id: GEYSERS_01
+name: "The Geysers Geothermal Field"
+latitude: 38.79
+longitude: -122.76
+elevation: 800
+environment: "geothermal"
+deployment_date: "2011-01-01"
+
+sensors:
+  geophone:
+    type: "LITHO-GEO-v2"
+    channels: 12
+    sample_rate: 1000
+    
+  infrasound:
+    channels: 24
+    sample_rate: 100
+
+processing:
+  window_size: 60
+  overlap: 0.5
+  sample_rate: 1000
+
+injection_wells:
+  - id: "GDC-01"
+    depth: 3000
+    injection_rate: 1200
+  - id: "GDC-02"
+    depth: 2800
+    injection_rate: 950

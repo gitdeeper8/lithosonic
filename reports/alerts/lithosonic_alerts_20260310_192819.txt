@@ -1,0 +1,104 @@
+================================================================================
+🚨 LITHO-SONIC ALERT REPORT
+================================================================================
+
+Alert Type: RED
+Time: 2026-03-10 19:28:19
+
+--------------------------------------------------------------------------------
+ALERT DETAILS
+--------------------------------------------------------------------------------
+
+Alert #1:
+  Station: CHICXULUB_01
+  LSI: 0.832
+  Confidence: 93.8%
+  Time: 10:45
+  Parameters:
+    B_c: 0.69
+    Z_c: 0.54
+    F_n: 2.4 Hz
+
+Alert #2:
+  Station: SAN_ANDREAS_01
+  LSI: 0.757
+  Confidence: 87.4%
+  Time: 20:57
+  Parameters:
+    B_c: 0.75
+    Z_c: 0.53
+    F_n: 6.8 Hz
+
+Alert #3:
+  Station: CAMPI_FLEGREI_01
+  LSI: 0.698
+  Confidence: 93.9%
+  Time: 04:55
+  Parameters:
+    B_c: 0.65
+    Z_c: 0.67
+    F_n: 7.2 Hz
+
+Alert #4:
+  Station: CORINTH_RIFT_01
+  LSI: 0.915
+  Confidence: 92.2%
+  Time: 16:13
+  Parameters:
+    B_c: 0.80
+    Z_c: 0.74
+    F_n: 2.5 Hz
+
+Alert #5:
+  Station: CHICXULUB_01
+  LSI: 0.707
+  Confidence: 95.7%
+  Time: 04:43
+  Parameters:
+    B_c: 0.87
+    Z_c: 0.54
+    F_n: 6.7 Hz
+
+Alert #6:
+  Station: KILAUEA_ERZ_01
+  LSI: 0.750
+  Confidence: 88.6%
+  Time: 21:23
+  Parameters:
+    B_c: 0.77
+    Z_c: 0.78
+    F_n: 5.1 Hz
+
+Alert #7:
+  Station: SAN_ANDREAS_01
+  LSI: 0.764
+  Confidence: 85.6%
+  Time: 04:48
+  Parameters:
+    B_c: 0.76
+    Z_c: 0.52
+    F_n: 6.6 Hz
+
+Alert #8:
+  Station: CORINTH_RIFT_01
+  LSI: 0.832
+  Confidence: 86.2%
+  Time: 13:43
+  Parameters:
+    B_c: 0.75
+    Z_c: 0.64
+    F_n: 6.6 Hz
+
+Alert #9:
+  Station: KILAUEA_ERZ_01
+  LSI: 0.845
+  Confidence: 89.2%
+  Time: 06:27
+  Parameters:
+    B_c: 0.67
+    Z_c: 0.64
+    F_n: 6.5 Hz
+
+================================================================================
+End of Alert Report
+================================================================================

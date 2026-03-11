@@ -1,0 +1,28 @@
+# Chicxulub Impact Crater Reference Site Configuration
+site_id: CHICXULUB_01
+name: "Chicxulub Impact Crater"
+latitude: 21.3
+longitude: -89.6
+elevation: 0
+environment: "stable_craton"
+deployment_date: "2015-01-01"
+
+sensors:
+  geophone:
+    type: "LITHO-GEO-v2"
+    channels: 12
+    sample_rate: 1000
+    
+  infrasound:
+    channels: 24
+    sample_rate: 100
+
+processing:
+  window_size: 60
+  overlap: 0.5
+  sample_rate: 1000
+
+reference_data:
+  vsp_well: "Yaxcopoil-1"
+  depth: 1511
+  impact_age: 66e6  # years

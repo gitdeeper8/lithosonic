@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use LITHO-SONIC in your research, please cite it as below."
+title: "LITHO-SONIC: Lithospheric Resonance & Infrasonic Geomechanical Observatory"
+version: 1.0.0
+doi: 10.5281/zenodo.18931304
+date-released: 2026-03-11
+url: "https://github.com/gitdeeper8/lithosonic"
+repository-code: "https://github.com/gitdeeper8/lithosonic"
+license: "MIT"
+
+authors:
+  - family-names: "Baladi"
+    given-names: "Samir"
+    email: "gitdeeper@gmail.com"
+    orcid: "https://orcid.org/0009-0003-8903-0029"
+    affiliation: "Ronin Institute / Rite of Renaissance"
+
+identifiers:
+  - type: "doi"
+    value: "10.5281/zenodo.18931304"
+    description: "Zenodo archive"
+  - type: "url"
+    value: "https://lithosonic.netlify.app"
+    description: "Live dashboard"
+  - type: "url"
+    value: "https://pypi.org/project/lithosonic"
+    description: "PyPI package"
+  - type: "url"
+    value: "https://osf.io/gfzqs"
+    description: "OSF preregistration"
+  - type: "doi"
+    value: "10.17605/OSF.IO/BV47N"
+    description: "OSF DOI"

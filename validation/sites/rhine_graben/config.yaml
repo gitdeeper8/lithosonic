@@ -1,0 +1,29 @@
+# Rhine Graben Geothermal Province Configuration
+site_id: RHINE_GRABEN_01
+name: "Rhine Graben"
+latitude: 49.0
+longitude: 8.2
+elevation: 120
+environment: "continental_rift"
+deployment_date: "2016-01-01"
+
+sensors:
+  geophone:
+    type: "LITHO-GEO-v2"
+    channels: 12
+    sample_rate: 1000
+    
+  infrasound:
+    channels: 24
+    sample_rate: 100
+
+processing:
+  window_size: 60
+  overlap: 0.5
+  sample_rate: 1000
+
+geothermal_plants:
+  - name: "Insheim"
+    depth: 3800
+  - name: "Landau"
+    depth: 3200

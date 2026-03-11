@@ -1,0 +1,26 @@
+# Campi Flegrei Caldera Configuration
+site_id: CAMPI_FLEGREI_01
+name: "Campi Flegrei Caldera"
+latitude: 40.827
+longitude: 14.139
+elevation: 458
+environment: "caldera_inflation"
+deployment_date: "2014-01-01"
+
+sensors:
+  geophone:
+    type: "LITHO-GEO-v2"
+    channels: 12
+    sample_rate: 1000
+    
+  infrasound:
+    channels: 24
+    sample_rate: 100
+    
+  tiltmeter:
+    sample_rate: 20
+
+processing:
+  window_size: 60
+  overlap: 0.5
+  sample_rate: 1000

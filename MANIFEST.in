@@ -1,0 +1,35 @@
+# LITHO-SONIC MANIFEST.in
+
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include AUTHORS.md
+include CODE_OF_CONDUCT.md
+include .env.example
+include requirements.txt
+include pyproject.toml
+include setup.cfg
+include setup.py
+
+include Dockerfile
+include Dockerfile.dev
+include docker-compose.yml
+include docker-compose.dev.yml
+
+recursive-include lithosonic *.py
+recursive-include config *.yaml *.json
+recursive-include data/sample *.csv *.h5
+recursive-include tests *.py
+recursive-include docs *.md *.rst
+recursive-include scripts *.py *.sh
+
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * .git
+recursive-exclude * .env
+recursive-exclude * .venv
+recursive-exclude * venv
+recursive-exclude * build
+recursive-exclude * dist
+recursive-exclude *.egg-info
